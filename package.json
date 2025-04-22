@@ -1,5 +1,5 @@
 {
-  "name": "cloudflare-agent-starter",
+  "name": "bambai-agent-starter",
   "version": "1.0.0",
   "description": "",
   "type": "module",
@@ -37,9 +37,11 @@
     "wrangler": "^4.7.2"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^1.2.6",
     "@ai-sdk/openai": "^1.3.4",
     "@ai-sdk/react": "^1.2.3",
     "@ai-sdk/ui-utils": "^1.2.2",
+    "@anthropic-ai/sdk": "^0.39.0",
     "@phosphor-icons/react": "^2.1.7",
     "@radix-ui/react-avatar": "^1.1.3",
     "@radix-ui/react-dropdown-menu": "^2.1.6",
@@ -47,6 +49,7 @@
     "@radix-ui/react-switch": "^1.1.3",
     "agents": "^0.0.46",
     "ai": "^4.2.8",
+    "axios": "^1.8.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "react": "^19.1.0",

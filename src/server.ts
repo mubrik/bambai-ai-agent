@@ -9,16 +9,16 @@ import {
   streamText,
   type StreamTextOnFinishCallback,
 } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { anthropic } from "@ai-sdk/anthropic";
 import { processToolCalls } from "./utils";
 import { tools, executions } from "./tools";
 import { AsyncLocalStorage } from "node:async_hooks";
 // import { env } from "cloudflare:workers";
 
-const model = openai("gpt-4o-2024-11-20");
+const model = anthropic("claude-3-sonnet-20240229");
 // Cloudflare AI Gateway
 // const openai = createOpenAI({
-//   apiKey: env.OPENAI_API_KEY,
+//   apiKey: env.ANTHROPIC_API_KEY,
 //   baseURL: env.GATEWAY_BASE_URL,
 // });
 
@@ -51,12 +51,20 @@ export class Chat extends AIChatAgent<Env> {
           // Stream the AI response using GPT-4
           const result = streamText({
             model,
-            system: `You are a helpful assistant that can do various tasks... 
-
-${unstable_getSchedulePrompt({ date: new Date() })}
-
-If the user asks to schedule a task, use the schedule tool to schedule the task.
-`,
+            system: `You are a helpful assistant that can do various tasks...
+            If the user asks for any personal information use the getUserPersonalData tool to get the information requested.
+            If the user asks for the weather, use the getWeatherInformation tool to get the weather.
+            If the user asks for the local time, use the getLocalTime tool to get the local time.
+            If the user asks to schedule a task, use the schedule tool to schedule the task.
+            If the user asks for information about all schools use the getSchools tool to get the information.
+            If the user asks for information about all classes use the getClasses tool to get the information.
+            If the user asks for information about all subjects use the getSubjects tool to get the information.
+            If the user asks for information about all students use the getStudents tool to get the information.
+            If the user asks for information about a specific student use the getStudent tool to get the information.
+            If the user asks for information about a specific student and given the student name use the searchStudent tool to get the information.
+            ${unstable_getSchedulePrompt({ date: new Date() })}
+            If the user asks to schedule a task, use the schedule tool to schedule the task.
+            `,
             messages: processedMessages,
             tools,
             onFinish,
@@ -92,11 +100,11 @@ If the user asks to schedule a task, use the schedule tool to schedule the task.
  */
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.ANTHROPIC_API_KEY) {
       console.error(
-        "OPENAI_API_KEY is not set, don't forget to set it locally in .dev.vars, and use `wrangler secret bulk .dev.vars` to upload it to production"
+        "ANTHROPIC_API_KEY is not set, don't forget to set it locally in .dev.vars, and use `wrangler secret bulk .dev.vars` to upload it to production"
       );
-      return new Response("OPENAI_API_KEY is not set", { status: 500 });
+      return new Response("ANTHROPIC_API_KEY is not set", { status: 500 });
     }
     return (
       // Route the request to our agent or return 404 if not found

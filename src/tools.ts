@@ -11,6 +11,12 @@ import {
   unstable_scheduleSchema,
 } from "agents/schedule";
 
+// api
+import bambaiApiClient from "./api";
+const AUTH_HEADER = {
+  "x-access-token": ""
+}
+
 /**
  * Weather information tool that requires human confirmation
  * When invoked, this will present a confirmation dialog to the user
@@ -68,14 +74,197 @@ const scheduleTask = tool({
     return `Task scheduled for type "${when.type}" : ${input}`;
   },
 });
+
+const getUserPersonalData = tool({
+  description: "This tool returns the personal information of the user",
+  parameters: z.object({}),
+  execute: async () => {
+    const headers = AUTH_HEADER;
+    try {
+      const res = await bambaiApiClient.get("me", { headers });
+      console.log('res', res.data);
+      return JSON.stringify(res.data);
+    } catch (error) {
+      console.log("err", error);
+      return "error"
+    }
+  },
+});
+
+const getSchools = tool({
+  description: "This tool returns the schools available for the user",
+  parameters: z.object({}),
+  execute: async () => {
+    const headers = AUTH_HEADER;
+    try {
+      const res = await bambaiApiClient.get("schools?page=0&perPage=30", { headers });
+      console.log('res', res.data);
+      return JSON.stringify(res.data);
+    } catch (error) {
+      console.log("err", error);
+      return "error"
+    }
+  },
+});
+
+const getClasses = tool({
+  description: "This tool returns the classes available for the user",
+  parameters: z.object({}),
+  execute: async () => {
+    const headers = AUTH_HEADER;
+    try {
+      const res = await bambaiApiClient.get("classes", { headers });
+      console.log('res', res.data);
+      return JSON.stringify(res.data);
+    } catch (error) {
+      console.log("err", error);
+      return "error"
+    }
+  },
+});
+
+const getSubjects = tool({
+  description: "This tool returns the subjects available for the user",
+  parameters: z.object({}),
+  execute: async () => {
+    const headers = AUTH_HEADER;
+    try {
+      const res = await bambaiApiClient.get("subjects", { headers });
+      console.log('res', res.data);
+      return JSON.stringify(res.data);
+    } catch (error) {
+      console.log("err", error);
+      return "error"
+    }
+  },
+});
+
+const GET_STUDENTS_DESCRIPTION = `
+This tool returns the students available for the user.
+you can filter by schoolId and classIds.
+classIds can be a list of ids separated by commas, such as "1,2,3".
+schoolIds can be a list of ids separated by commas, such as "1,2,3".
+ClassIds can be found using the getClasses tool.
+SchoolIds can be found using the getSchools tool.
+`
+
+/**
+ * This tool returns the students available for the user, you can filter by schoolId and classId, classId can be a list of ids
+ * @param schoolIds
+ * @param classIds
+ */
+const getStudents = tool({
+  description: GET_STUDENTS_DESCRIPTION,
+  parameters: z.object({
+    schoolIds: z.string().optional(),
+    classIds: z.string().optional(),
+  }),
+  execute: async ({ schoolIds, classIds }) => {
+    const headers = AUTH_HEADER;
+    let url = "active-students";
+
+    if (schoolIds) {
+      url += `?schoolIds=${schoolIds}`;
+    }
+
+    if (classIds) {
+      if (url.includes("?")) {
+        url += `&classIds=${classIds}`;
+      } else {
+        url += `?classIds=${classIds}`;
+      }
+    }
+
+    try {
+      const res = await bambaiApiClient.get(url, { headers });
+      console.log('res', res.data);
+      return JSON.stringify(res.data);
+    } catch (error) {
+      console.log("err", error);
+      return "error"
+    }
+  },
+});
+
+const SEARCH_STUDENT_DESCRIPTION = `
+This tool returns a list of students that match the search term.
+you can search by name. it is compulsory to pass the name.
+you can pass the schoolIds to filter the students by school.
+`
+
+/**
+ * This tool searches for a student by their name
+ * @param name
+ */
+const searchStudent = tool({
+  description: SEARCH_STUDENT_DESCRIPTION,
+  parameters: z.object({
+    name: z.string(),
+    schoolIds: z.string().optional(),
+  }),
+  execute: async ({ name, schoolIds }) => {
+
+    const headers = AUTH_HEADER;
+    // make name url safe
+    let url = `/students/typeahead?searchText=${encodeURIComponent(name)}`;
+    if (schoolIds) {
+      url += `?schoolIds=${schoolIds}`;
+    }
+
+    try {
+      const res = await bambaiApiClient.get(url, { headers });
+      console.log('res', res.data);
+      return JSON.stringify(res.data);
+    } catch (error) {
+      console.log("err", error);
+      return "error"
+    }
+  },
+});
+
+const GET_STUDENT_DESCRIPTION = `
+This tool returns the full information of a student.
+you need to pass the studentId to get the information.
+you can get studentId (_id) using the getStudents tool.
+`
+
+/**
+ * This tool returns information about a specific student
+ */
+const getStudent = tool({
+  description: GET_STUDENT_DESCRIPTION,
+  parameters: z.object({
+    studentId: z.string()
+  }),
+  execute: async ({ studentId }) => {
+    const headers = AUTH_HEADER;
+    let url = `student/${studentId}`;
+    try {
+      const res = await bambaiApiClient.get(url, { headers });
+      console.log('res', res.data);
+      return JSON.stringify(res.data);
+    } catch (error) {
+      console.log("err", error);
+      return "error"
+    }
+  },
+});
+
 /**
  * Export all available tools
  * These will be provided to the AI model to describe available capabilities
  */
 export const tools = {
+  getUserPersonalData,
   getWeatherInformation,
   getLocalTime,
   scheduleTask,
+  getClasses,
+  getSubjects,
+  getSchools,
+  getStudents,
+  searchStudent,
+  getStudent
 };
 
 /**
