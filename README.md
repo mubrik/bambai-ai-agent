@@ -21,33 +21,27 @@ A starter template for building AI-powered chat agents using Cloudflare's Agent 
 
 ## Quick Start
 
-1. Create a new project:
-
-```bash
-npm create cloudflare@latest -- --template cloudflare/agents-starter
-```
-
-2. Install dependencies:
+1. Install dependencies:
 
 ```bash
 npm install
 ```
 
-3. Set up your environment:
+2. Set up your environment:
 
 Create a `.dev.vars` file:
 
 ```env
-OPENAI_API_KEY=your_openai_api_key
+ANTHROPIC_API_KEY=anthropic-api-key
 ```
 
-4. Run locally:
+3. Run locally:
 
 ```bash
 npm start
 ```
 
-5. Deploy:
+4. Deploy:
 
 ```bash
 npm run deploy
