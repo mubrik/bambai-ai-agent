@@ -14,66 +14,8 @@ import {
 // api
 import bambaiApiClient from "./api";
 const AUTH_HEADER = {
-  "x-access-token": ""
+  "x-access-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3Yzg3ZjAxMTk3OGEyNmY5YWFlNTAyZCIsImlhdCI6MTc0NTQ5MjE2MSwiZXhwIjozMTcyODk5MzQ1NjF9.LqqazRvasIS50EFomrZUYzCDgJbhrkHQ9IgTW45Ex4E"
 }
-
-/**
- * Weather information tool that requires human confirmation
- * When invoked, this will present a confirmation dialog to the user
- * The actual implementation is in the executions object below
- */
-const getWeatherInformation = tool({
-  description: "show the weather in a given city to the user",
-  parameters: z.object({ city: z.string() }),
-  // Omitting execute function makes this tool require human confirmation
-});
-
-/**
- * Local time tool that executes automatically
- * Since it includes an execute function, it will run without user confirmation
- * This is suitable for low-risk operations that don't need oversight
- */
-const getLocalTime = tool({
-  description: "get the local time for a specified location",
-  parameters: z.object({ location: z.string() }),
-  execute: async ({ location }) => {
-    console.log(`Getting local time for ${location}`);
-    return "10am";
-  },
-});
-
-const scheduleTask = tool({
-  description: "A tool to schedule a task to be executed at a later time",
-  parameters: unstable_scheduleSchema,
-  execute: async ({ when, description }) => {
-    // we can now read the agent context from the ALS store
-    const agent = agentContext.getStore();
-    if (!agent) {
-      throw new Error("No agent found");
-    }
-    function throwError(msg: string): string {
-      throw new Error(msg);
-    }
-    if (when.type === "no-schedule") {
-      return "Not a valid schedule input";
-    }
-    const input =
-      when.type === "scheduled"
-        ? when.date // scheduled
-        : when.type === "delayed"
-          ? when.delayInSeconds // delayed
-          : when.type === "cron"
-            ? when.cron // cron
-            : throwError("not a valid schedule input");
-    try {
-      agent.schedule(input!, "executeTask", description);
-    } catch (error) {
-      console.error("error scheduling task", error);
-      return `Error scheduling task: ${error}`;
-    }
-    return `Task scheduled for type "${when.type}" : ${input}`;
-  },
-});
 
 const getUserPersonalData = tool({
   description: "This tool returns the personal information of the user",
@@ -130,6 +72,51 @@ const getSubjects = tool({
     const headers = AUTH_HEADER;
     try {
       const res = await bambaiApiClient.get("subjects", { headers });
+      console.log('res', res.data);
+      return JSON.stringify(res.data);
+    } catch (error) {
+      console.log("err", error);
+      return "error"
+    }
+  },
+});
+
+const getLessons = tool({
+  description: "This tool returns the lessons available for the user",
+  parameters: z.object({}),
+  execute: async () => {
+    const headers = AUTH_HEADER;
+    try {
+      const res = await bambaiApiClient.get("lessons", { headers });
+      console.log('res', res.data);
+      return JSON.stringify(res.data);
+    } catch (error) {
+      console.log("err", error);
+      return "error"
+    }
+  },
+});
+
+const GET_LESSON_DESCRIPTION = `
+This tool returns the full information of a lesson.
+you need to pass the lessonId to get the information.
+you can get lessonId (_id) using the getLessons tool.
+`
+
+/**
+ * This tool returns information about a specific lesson
+ * @param lessonId
+ */
+const getLesson = tool({
+  description: GET_LESSON_DESCRIPTION,
+  parameters: z.object({
+    lessonId: z.string()
+  }),
+  execute: async ({ lessonId }) => {
+    const headers = AUTH_HEADER;
+    let url = `lessons/${lessonId}`;
+    try {
+      const res = await bambaiApiClient.get(url, { headers });
       console.log('res', res.data);
       return JSON.stringify(res.data);
     } catch (error) {
@@ -250,6 +237,65 @@ const getStudent = tool({
   },
 });
 
+
+/**
+ * Weather information tool that requires human confirmation
+ * When invoked, this will present a confirmation dialog to the user
+ * The actual implementation is in the executions object below
+ */
+const getWeatherInformation = tool({
+  description: "show the weather in a given city to the user",
+  parameters: z.object({ city: z.string() }),
+  // Omitting execute function makes this tool require human confirmation
+});
+
+/**
+ * Local time tool that executes automatically
+ * Since it includes an execute function, it will run without user confirmation
+ * This is suitable for low-risk operations that don't need oversight
+ */
+const getLocalTime = tool({
+  description: "get the local time for a specified location",
+  parameters: z.object({ location: z.string() }),
+  execute: async ({ location }) => {
+    console.log(`Getting local time for ${location}`);
+    return "10am";
+  },
+});
+
+const scheduleTask = tool({
+  description: "A tool to schedule a task to be executed at a later time",
+  parameters: unstable_scheduleSchema,
+  execute: async ({ when, description }) => {
+    // we can now read the agent context from the ALS store
+    const agent = agentContext.getStore();
+    if (!agent) {
+      throw new Error("No agent found");
+    }
+    function throwError(msg: string): string {
+      throw new Error(msg);
+    }
+    if (when.type === "no-schedule") {
+      return "Not a valid schedule input";
+    }
+    const input =
+      when.type === "scheduled"
+        ? when.date // scheduled
+        : when.type === "delayed"
+          ? when.delayInSeconds // delayed
+          : when.type === "cron"
+            ? when.cron // cron
+            : throwError("not a valid schedule input");
+    try {
+      agent.schedule(input!, "executeTask", description);
+    } catch (error) {
+      console.error("error scheduling task", error);
+      return `Error scheduling task: ${error}`;
+    }
+    return `Task scheduled for type "${when.type}" : ${input}`;
+  },
+});
+
 /**
  * Export all available tools
  * These will be provided to the AI model to describe available capabilities
@@ -264,7 +310,9 @@ export const tools = {
   getSchools,
   getStudents,
   searchStudent,
-  getStudent
+  getStudent,
+  getLessons,
+  getLesson,
 };
 
 /**

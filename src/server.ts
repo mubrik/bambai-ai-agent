@@ -53,17 +53,14 @@ export class Chat extends AIChatAgent<Env> {
             model,
             system: `You are a helpful assistant that can do various tasks...
             If the user asks for any personal information use the getUserPersonalData tool to get the information requested.
-            If the user asks for the weather, use the getWeatherInformation tool to get the weather.
-            If the user asks for the local time, use the getLocalTime tool to get the local time.
-            If the user asks to schedule a task, use the schedule tool to schedule the task.
             If the user asks for information about all schools use the getSchools tool to get the information.
             If the user asks for information about all classes use the getClasses tool to get the information.
             If the user asks for information about all subjects use the getSubjects tool to get the information.
+            If the user asks for information about all lessons use the getLessons tool to get the information.
+            If the user asks for information about a specific lessons use the getLesson tool to get the information.
             If the user asks for information about all students use the getStudents tool to get the information.
             If the user asks for information about a specific student use the getStudent tool to get the information.
             If the user asks for information about a specific student and given the student name use the searchStudent tool to get the information.
-            ${unstable_getSchedulePrompt({ date: new Date() })}
-            If the user asks to schedule a task, use the schedule tool to schedule the task.
             `,
             messages: processedMessages,
             tools,

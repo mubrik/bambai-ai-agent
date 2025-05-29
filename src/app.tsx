@@ -112,7 +112,7 @@ export default function Chat() {
               className="text-[#F48120]"
               data-icon="agents"
             >
-              <title>Cloudflare Agents</title>
+              <title>Bambai Agents</title>
               <symbol id="ai:local:agents" viewBox="0 0 80 79">
                 <path
                   fill="currentColor"
@@ -124,7 +124,7 @@ export default function Chat() {
           </div>
 
           <div className="flex-1">
-            <h2 className="font-semibold text-base">AI Chat Agent</h2>
+            <h2 className="font-semibold text-base">Bambai AI Chat Agent</h2>
           </div>
 
           <div className="flex items-center gap-2 mr-2">
@@ -166,7 +166,7 @@ export default function Chat() {
                   <div className="bg-[#F48120]/10 text-[#F48120] rounded-full p-3 inline-flex">
                     <Robot size={24} />
                   </div>
-                  <h3 className="font-semibold text-lg">Welcome to AI Chat</h3>
+                  <h3 className="font-semibold text-lg">Welcome to Bambai AI Chat</h3>
                   <p className="text-muted-foreground text-sm">
                     Start a conversation with your AI assistant. Try asking
                     about:
@@ -174,11 +174,11 @@ export default function Chat() {
                   <ul className="text-sm text-left space-y-2">
                     <li className="flex items-center gap-2">
                       <span className="text-[#F48120]">•</span>
-                      <span>Weather information for any city</span>
+                      <span>Your classes</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <span className="text-[#F48120]">•</span>
-                      <span>Local time in different locations</span>
+                      <span>Subjects or students you teach</span>
                     </li>
                   </ul>
                 </div>
